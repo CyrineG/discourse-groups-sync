@@ -1,0 +1,3 @@
+plugins:
+  groups_sync_enabled:
+    default: false
