@@ -1,3 +1,13 @@
 plugins:
   groups_sync_enabled:
     default: false
+  ldap_hostname:
+    default: 'hostname'
+  ldap_port:
+    default: 389
+  ldap_base:
+    default: 'base'
+  ldap_bind_dn:
+    default: 'bind dn'
+  ldap_password:
+    default: 'password'
