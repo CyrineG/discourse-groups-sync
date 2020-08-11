@@ -1,0 +1,1 @@
+A Discourse plugin that allows to sync discourse groups with ldap groups.
