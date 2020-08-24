@@ -1,3 +1,9 @@
 en:
   site_settings:
     groups_sync_enabled: 'Enable groups_sync'
+    ldap_hostname: 'LDAP hostname'
+    ldap_port: 'LDAP port'
+    ldap_base: 'LDAP base'
+    ldap_bind_dn: 'LDAP bind dn'
+    ldap_password: 'LDAP password'
+

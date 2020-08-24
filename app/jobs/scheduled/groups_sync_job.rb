@@ -6,11 +6,13 @@ class Jobs::GroupsSyncJob < Jobs::Scheduled
   def execute(args)
 
     #retrieving groups that have the group_sync custom field enabled
-    groups_id_array= GroupCustomField.where(name: "group_sync", value: "t").pluck(:group_id)
+
+    groups_id_array= GroupCustomField.where(name: 'group_sync', value: "true").pluck(:group_id)
     
     groups_id_array.each do |group_id|
       sync_group(group_id)
     end
+
   end
   
   private  
@@ -21,20 +23,30 @@ class Jobs::GroupsSyncJob < Jobs::Scheduled
     
     def sync_group(group_id)
       group_name = get_group_name(group_id)
-      users_array = get_members(group_name)
+      group_ldap_dn = get_group_ldap_dn(group_id)
+      users_array = get_members(group_ldap_dn)
       users_array.each do |user|
         add_user_group(group_id, user[0])
       end
-     
-      p "users added to " + group_name + "!"
+    end
+    
+  # ------get_group_ldap_dn(group_id)------
+  # description: gets a group's ldap dn
+  # takes group_id (integer) as parameter
+  # returns group_ldap_dn (String)    
+    
+    def get_group_ldap_dn(group_id)
+      group = Group.find(group_id)
+      group_ldap_dn = group.custom_fields['ldap_dn']
+      group_ldap_dn
     end
 
-  # ------get_members(group_name)------
+  # ------get_members(group_ldap_dn)------
   # description: gets a group's members from ldap
-  # takes group_name (String) as parameter
+  # takes group_ldap_dn (String) as parameter
   # returns group_members (String hash)
   
-    def get_members(group_name)
+    def get_members(group_ldap_dn)
       ldap = Net::LDAP.new :host => SiteSetting.ldap_hostname,
      :port => SiteSetting.ldap_port,
      :auth => {
@@ -44,11 +56,11 @@ class Jobs::GroupsSyncJob < Jobs::Scheduled
      }
 
       #might need to change the ldap filter string to use the group's dn (from ldap), in some cases, instead of group_name for it to work
-      filter = Net::LDAP::Filter.construct("(&(objectClass=person))")
+      filter = Net::LDAP::Filter.construct('(memberOf='+ group_ldap_dn +')')
       
       treebase = SiteSetting.ldap_base
 
-      result_attrs = ["mail"]
+      result_attrs =["mail"]
       
       group_members = []
       ldap.search(:base => treebase, :filter =>

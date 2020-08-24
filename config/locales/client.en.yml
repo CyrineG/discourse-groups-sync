@@ -1,0 +1,9 @@
+en: 
+  admin_js:
+    admin:
+      groups:
+        manage:
+          membership:
+            ldap_synchronisation: 'LDAP Synchronisation'
+            ldap_synchronisation_group_dn: 'By adding a valid ldap group dn in the field below, this group will be automatically synchronized with the it. Leave the field empty to disable.' 
+           

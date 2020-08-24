@@ -10,20 +10,40 @@ enabled_site_setting :groups_sync_enabled
 gem 'net-ldap', '0.16.2'
 
 
+
+
 after_initialize do
-  load File.expand_path('../app/controllers/groups_sync_controller.rb', __FILE__)
-  
+
   require_relative 'app/jobs/scheduled/groups_sync_job'
 
-  Discourse::Application.routes.append do
-    # Map the path `/groups-sync` to `GroupsSyncController`’s `index` method
-    get '/groups-sync' => 'groups_sync#index'
-  end
   
- #creating a custom field group_sync for groups
+ #creating the custom fields, group_sync and ldap_dn for groups
   Group.register_custom_field_type('group_sync', :boolean)
-  Group.preload_custom_fields<< "group_sync" if Group.respond_to? :preloaded_custom_fields
+  Group.preload_custom_fields<< "group_sync" if
+  Group.respond_to? :preloaded_custom_fields
   
+  Group.register_custom_field_type('ldap_dn', :text)
+  Group.preload_custom_fields<< "ldap_dn" if
+  Group.respond_to? :preloaded_custom_fields
+  
+  
+  
+  register_editable_group_custom_field [:group_sync, :ldap_dn];
+#add custom field to GroupShowSerializer so it appears fil frontend model 
+  if SiteSetting.groups_sync_enabled then
+   
+    add_to_serializer(:group_show, :custom_fields, false) {
+      
+        object.custom_fields
+      
+    }
+   end
+
+   DiscourseEvent.on(:group_updated) do |group|
+     # avoid infinite recursion
+     p group.custom_fields
+   end
+
 =begin  
 
 #to enable custom field group_sync for group "example"
