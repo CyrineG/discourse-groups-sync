@@ -17,12 +17,11 @@ class Jobs::GroupsSyncJob < Jobs::Scheduled
   
   private  
   
-  # ------sync_group(group_name)------
-  # description: main method. Synchronises discourse group with ldap group of the same name
-  # takes group_name (String) of group as parameter
+  # ------sync_group(group_id)------
+  # description: main method. Synchronises discourse group with an ldap group
+  # takes group_id (Integer) of group as parameter
     
     def sync_group(group_id)
-      group_name = get_group_name(group_id)
       group_ldap_dn = get_group_ldap_dn(group_id)
       users_array = get_members(group_ldap_dn)
       users_array.each do |user|
@@ -55,7 +54,6 @@ class Jobs::GroupsSyncJob < Jobs::Scheduled
            :password => SiteSetting.ldap_password
      }
 
-      #might need to change the ldap filter string to use the group's dn (from ldap), in some cases, instead of group_name for it to work
       filter = Net::LDAP::Filter.construct('(memberOf='+ group_ldap_dn +')')
       
       treebase = SiteSetting.ldap_base
@@ -71,17 +69,7 @@ class Jobs::GroupsSyncJob < Jobs::Scheduled
       group_members
     end
    
-  # ------get_group_name(group_id)------
-  # description: gets a discourse group's name
-  # takes the group's id (integer) as param
-  # returns the group_name (String)
-  
-    def get_group_name(group_id)
-      group = Group.find(group_id)
-      group.name
-    end
-   
-  # ------get_user_discourse(user_name)------  
+  # ------get_user_discourse(user_email)------  
   # description: fetches a user from discourse
   # takes user's email (String) as parameter
   # returns a user (User)
@@ -94,8 +82,7 @@ class Jobs::GroupsSyncJob < Jobs::Scheduled
   # ------add_user_group(group_id, user_email)------
   # description: adds a user to the discourse group
   # takes discourse group_id (String) and user email (String) as parameters
-  # doesn't return anything
-  
+ 
     def add_user_group(group_id, user_email)
       group = Group.find(group_id)
       if group
