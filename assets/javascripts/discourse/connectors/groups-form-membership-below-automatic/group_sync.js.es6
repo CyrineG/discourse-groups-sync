@@ -34,9 +34,6 @@ export default {
       } else {
         this.commit(group,true, this.ldapDN);
       }
-         
-     
-      console.log(group.custom_fields);     
   },
   
   onChangeLDAPdn(value){
