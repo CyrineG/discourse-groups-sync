@@ -5,14 +5,11 @@ export default {
 
   
   setupComponent(args, component) {
-    active_status: true;
     ldapDN:"";
     },
   
-  actions:{
-
-    
-    
+  actions: {
+  
     commit(group, status, ldapDN){
       
       ajax(`/groups/${group.id}.json`, { type: "PUT",
@@ -34,7 +31,7 @@ export default {
       } else {
         this.commit(group,true, this.ldapDN);
       }
-  },
+    },
   
   onChangeLDAPdn(value){
       this.ldapDN = value;
